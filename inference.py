@@ -1,5 +1,6 @@
 import os.path
 from argparse import ArgumentParser
+from typing import List
 from uuid import uuid4
 
 import torch
@@ -22,40 +23,47 @@ def infer_transforms(size=640):
 class InferenceDataset(Dataset):
     def __init__(self, data_dir: str, transform=infer_transforms()):
         self.transform = transform
-        self.img_paths = [os.path.join(data_dir, filename) for filename in os.listdir(data_dir)]
+        self.img_names = os.listdir(data_dir)
+        self.img_paths = [os.path.join(data_dir, filename) for filename in self.img_names]
 
     def __getitem__(self, index):
         img = Image.open(self.img_paths[index])
-        return self.transform(img)
+        return self.transform(img), self.img_names[index]
 
     def __len__(self):
         return len(self.img_paths)
 
-def save_batch(batch: torch.Tensor, out_dir: str) -> None:
+
+def save_batch(batch: torch.Tensor, out_dir: str, img_names: List[str]) -> None:
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
-    for tensor_3d in batch:
+    for idx, tensor_3d in enumerate(batch):
         img = to_pil_image(tensor_3d)
-        img.save(os.path.join(out_dir, f"{uuid4()}.jpg"))
+        img.save(os.path.join(out_dir, img_names[idx]))
+
+
+def inference_for_dir(dir_in: str, dir_out: str, model: torch.nn.Module, batch_size: int = 1):
+    dataset = InferenceDataset(data_dir=dir_in)
+    dataloader = DataLoader(dataset, batch_size=batch_size)
+    for batch in dataloader:
+        images, names = batch
+        output = model(images.to("cuda"))
+        save_batch(output, dir_out, names)
+
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("dir", help="dir with images")
-    directory = parser.parse_args().dir
+    parser.add_argument("dir_in", help="dir with images")
+    parser.add_argument("dir_out", help="dir with images")
+    args = parser.parse_args()
+    dir_in = args.dir_in
+    dir_out = args.dir_out
     # model
     model = CIDNet()
     model.load_state_dict(torch.load("weights/best_SSIM.pth"))
     model.to("cuda")
     model.eval()
 
-    # dataset
-    dataset = InferenceDataset(directory)
-    dataloader = DataLoader(dataset, batch_size=1)
-
     # inference
-    torch.cuda.empty_cache()
-    for batch in dataloader:
-        output = model(batch.to("cuda"))
-        save_batch(output, "images_out")
-
+    inference_for_dir(dir_in, dir_out, model, batch_size=1)
     print("done")

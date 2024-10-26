@@ -1,6 +1,12 @@
 &nbsp;
 # You Only Need One Color Space: An Efficient Network for Low-light Image Enhancement
 
+## Inference
+```shell
+python inference.py dir_in dir_out
+```
+
+## Origin docs
 **Qingsen Yan<sup>∗ </sup>, Yixu Feng<sup>∗ </sup>, Cheng Zhang<sup>∗ </sup>**, Pei Wang, Peng Wu, Wei Dong, Jinqiu Sun,  Yanning Zhang
 
 <div align="center">
@@ -363,7 +369,7 @@ python measure.py --lol --use_GT_mean
 - **Evaluating the Parameters, FLOPs, and running time of HVI-CIDNet:**
 
 ```bash
-python net_test.py
+python inference.py
 ```
 
 
