@@ -1,7 +1,7 @@
 #!/bin/bash
 # script for generating new light dataset
 
-for in_dir in ../ExDarkObjectRecognition/data/dataset/split/*; do
+for in_dir in "$1"/*; do
   out_dir="${in_dir}_lighten";
   mkdir -p "$out_dir"
   python inference.py "$in_dir" "$out_dir"
