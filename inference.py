@@ -23,7 +23,7 @@ def infer_transforms(size=640):
 class InferenceDataset(Dataset):
     def __init__(self, data_dir: str, transform=infer_transforms()):
         self.transform = transform
-        self.img_names = [filename for filename in os.listdir(data_dir) if filename.split(".")[-1] in ['jpg', 'jpeg', 'png', 'ppm', 'JPG']]
+        self.img_names = [filename for filename in os.listdir(data_dir) if filename.split(".")[-1].lower() in ['jpg', 'jpeg', 'png', 'ppm']]
         self.img_paths = [os.path.join(data_dir, filename) for filename in self.img_names]
 
     def __getitem__(self, index):
@@ -46,6 +46,7 @@ def save_batch(batch: torch.Tensor, out_dir: str, img_names: List[str]) -> None:
 def inference_for_dir(dir_in: str, dir_out: str, model: torch.nn.Module, batch_size: int = 1):
     dataset = InferenceDataset(data_dir=dir_in)
     dataloader = DataLoader(dataset, batch_size=batch_size)
+    print(f"inference for dir {dir_in} of {len(dataset)} elements")
     for idx, batch in enumerate(dataloader):
         print(f"{idx}/{len(dataloader)}")
         images, names = batch
