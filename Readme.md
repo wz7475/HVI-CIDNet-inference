@@ -1,10 +1,20 @@
 &nbsp;
 # You Only Need One Color Space: An Efficient Network for Low-light Image Enhancement
 
+## Setup
+1. create new python3.7 virtual environment eg. `conda create -n py37 python3.7`
+2. install requirements with pip: `pip install -r <realtive_path_to>/requirements.txt`
+
 ## Inference
+Inference for images in a flat directory
 ```shell
-python inference.py dir_in dir_out
+python inference.py <dir_in> <dir_out>
 ```
+Inference for directory with flat directories with images
+```shell
+./dir_of_dirs.sh <input_dir>
+```
+New directories will be created using pattern "{directory_name}" -> "{directory_name}_lighten" 
 
 ## Origin docs
 **Qingsen Yan<sup>∗ </sup>, Yixu Feng<sup>∗ </sup>, Cheng Zhang<sup>∗ </sup>**, Pei Wang, Peng Wu, Wei Dong, Jinqiu Sun,  Yanning Zhang
